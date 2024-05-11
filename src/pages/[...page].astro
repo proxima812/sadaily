@@ -1,0 +1,26 @@
+---
+import Months from "@/components/Months.astro"
+import Pagination from "@/components/Pagination.astro"
+import Post from "@/components/Post.astro"
+import MainLayout from "@/layouts/MainLayout.astro"
+import { config } from "@/settings"
+import { getCollection } from "astro:content"
+export async function getStaticPaths({ paginate }) {
+	const allPosts = await getCollection("diaries")
+	const sortPost = allPosts.sort((a, b) => a.data.id.length - b.data.id.length)
+	return paginate(sortPost, {
+		pageSize: 12,
+	})
+}
+const { page } = Astro.props
+---
+
+<MainLayout
+	title={config.site.index_page.title}
+	description={config.site.index_page.description}
+>
+	<Pagination page={page} />
+	<section class="grid md:grid-cols-2 grid-cols-1 gap-12 lg:grid-cols-3">
+		{page.data && page.data.map(post => <Post data={post.data} slug={post.slug} />)}
+	</section>
+</MainLayout>
